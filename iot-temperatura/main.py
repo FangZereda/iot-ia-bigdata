@@ -108,6 +108,12 @@ with tab1:
             try:
                 df_processado = processar_dados(df)
                 engine = get_db_connection()
+                with engine.connect() as conn:
+                    conn.execute(text("DROP TABLE IF EXISTS temperature_logs CASCADE"))
+                    conn.execute(text("DROP VIEW IF EXISTS avg_temp_por_local CASCADE"))
+                    conn.execute(text("DROP VIEW IF EXISTS leituras_por_hora CASCADE"))
+                    conn.execute(text("DROP VIEW IF EXISTS temp_max_min_por_dia CASCADE"))
+                    conn.commit()
                 df_processado.to_sql('temperature_logs', engine, if_exists='replace', index=False)
                 create_views(engine)
                 st.success(f"Dados enviados para o banco de dados! {len(df_processado)} linhas inseridas.")
